@@ -27,13 +27,32 @@ class RecipeSchema(BaseModel):
 
 def get_model(name):
     if name.startswith("Gemini"):
-        if not os.getenv("GOOGLE_API_KEY"):
-            raise ValueError("GOOGLE_API_KEY not found in .env")
-        return ChatGoogleGenerativeAI(model="gemini-2.5-pro").with_structured_output(RecipeSchema)
+        api_key = os.getenv("GOOGLE_API_KEY")
+
+        if not api_key:
+            raise ValueError(
+                "GOOGLE_API_KEY not found. Please add it to Streamlit Secrets or your .env file."
+            )
+
+        return ChatGoogleGenerativeAI(
+            model="gemini-2.5-flash",
+            google_api_key=api_key,
+            temperature=0.3,
+        ).with_structured_output(RecipeSchema)
+
     else:
-        if not os.getenv("GROQ_API_KEY"):
-            raise ValueError("GROQ_API_KEY not found in .env")
-        return ChatGroq(model="llama-3.1-8b-instant").with_structured_output(RecipeSchema)
+        api_key = os.getenv("GROQ_API_KEY")
+
+        if not api_key:
+            raise ValueError(
+                "GROQ_API_KEY not found. Please add it to Streamlit Secrets or your .env file."
+            )
+
+        return ChatGroq(
+            model="llama-3.1-8b-instant",
+            api_key=api_key,
+            temperature=0.3,
+        ).with_structured_output(RecipeSchema)
 
 st.title("🍳 AI Recipe Studio")
 st.caption("Generate structured recipes with AI")
